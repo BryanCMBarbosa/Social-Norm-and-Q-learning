@@ -17,6 +17,7 @@ QAgent::QAgent(long id, int num_states, std::vector<bool> actions, double learni
     this->temperature = temperature;
     this->exploration_annealing_factor = exploration_annealing_factor;
     this->current_iteration = 0;
+    this->exploitation_acts = 0;
     generate_reputation();
 }
 
@@ -40,6 +41,7 @@ bool QAgent::act(Agent& receptor)
 
     if (temperature < 0.01)
     {
+        exploitation_acts++;
         for(int i = 0; i < num_actions; i++)
         {
             if (i == 0)
@@ -116,4 +118,5 @@ void QAgent::reset()
 
     current_state = initial_state;
     current_iteration = 0;
+    exploitation_acts = 0;
 }

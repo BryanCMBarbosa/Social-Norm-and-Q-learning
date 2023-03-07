@@ -29,6 +29,7 @@ class QAgent: public Agent
         double temperature;
         bool receptor_current_rep;
         bool receptor_previous_rep;
+        int exploitation_acts;
         
     private:
         void config_q_table();

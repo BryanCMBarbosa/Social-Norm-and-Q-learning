@@ -42,18 +42,18 @@ void Simulation::donation_operation(Agent& x, Agent& y)
 {
     bool x_act = x.act(y);
     bool y_act = y.act(x);
-    total_acts += 2;
+    total_acts += 2*keep_track;
 
     if (x_act)
     {
-        coops++;
+        coops += 1*keep_track;
         x.add_payoff(-payoff_c);
         y.add_payoff(payoff_b);
     }
 
     if (y_act)
     {
-        coops++;
+        coops += 1*keep_track;
         y.add_payoff(-payoff_c);
         x.add_payoff(payoff_b);
     }
@@ -80,16 +80,21 @@ void Simulation::run_generations(int runs)
         {
             cout << endl << "Run " << j+1 << " started." << endl;
 
-            while(q.temperature >= 0.01)
+            while(q.exploitation_acts < 1000)
             {
                 donation_operation(q, s);
                 q.change_state();
             }
 
-            eta = double(coops) / double(total_acts);
-            eta_each_run.push_back(eta);
-            coops = 0;
-            total_acts = 0;
+            keep_track = q.exploitation_acts > 0;
+
+            if (keep_track)
+            {
+                eta = double(coops) / double(total_acts);
+                eta_each_run.push_back(eta);
+                coops = 0;
+                total_acts = 0;
+            }
 
             q.reset();
             s.reset();
