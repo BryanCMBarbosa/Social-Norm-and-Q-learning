@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <numeric>
 
 class QAgent: public Agent
 {
@@ -41,6 +42,8 @@ class QAgent: public Agent
         int current_state;
         int next_state;
         int arg_action_taken;
+        std::vector<double> payoffs;
+        short acts_on_episode;
 };
 
 #endif
