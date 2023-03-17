@@ -16,7 +16,10 @@ short SocialAgent::repcomb_to_index(Agent& receptor)
     bernoulli_distribution dist(chi[0]);
     bitset<2> gossip_error;
     for(short i=0; i < gossip_error.size(); i++)
-        gossip_error[i] = dist(mt);
+    {
+        //gossip_error[i] = dist(mt);
+        gossip_error[i] = false;
+    }
 
     bool receptor_rep_1 = gossip_error[0] ? !receptor.reputation.back() : receptor.reputation.back();
     bool receptor_rep_2 = gossip_error[1] ? !receptor.reputation.front() : receptor.reputation.front();
@@ -27,7 +30,8 @@ short SocialAgent::repcomb_to_index(Agent& receptor)
 bool SocialAgent::act(Agent &receptor)
 {
     bernoulli_distribution dist(epsilon[0]);
-    bool can_execute = dist(mt);
+    //bool can_execute = dist(mt);
+    bool can_execute = true;
 
     if (can_execute)
         return strategy[repcomb_to_index(receptor)];

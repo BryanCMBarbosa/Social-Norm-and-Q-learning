@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <numeric>
 
 class QAgent: public Agent
 {
@@ -29,9 +30,11 @@ class QAgent: public Agent
         double temperature;
         bool receptor_current_rep;
         bool receptor_previous_rep;
+        int exploitation_acts;
         
     private:
         void config_q_table();
+        void print_q_table();
         
         std::mt19937 mt;
         double initial_temperature;
@@ -41,6 +44,7 @@ class QAgent: public Agent
         int current_state;
         int next_state;
         int arg_action_taken;
+        std::vector<double> payoffs;
 };
 
 #endif

@@ -17,8 +17,11 @@ QAgent::QAgent(long id, int num_states, std::vector<bool> actions, double learni
     this->temperature = temperature;
     this->exploration_annealing_factor = exploration_annealing_factor;
     this->current_iteration = 0;
+    this->exploitation_acts = 0;
     generate_reputation();
 }
+
+
 
 void QAgent::config_q_table()
 {
@@ -40,6 +43,7 @@ bool QAgent::act(Agent& receptor)
 
     if (temperature < 0.01)
     {
+        exploitation_acts++;
         for(int i = 0; i < num_actions; i++)
         {
             if (i == 0)
@@ -79,13 +83,22 @@ void QAgent::set_new_state(int new_state)
 
 void QAgent::add_payoff(double payoff)
 {
-    set_new_state((8 * receptor_previous_rep) + 
-        (4 * reputation.front()) + 
-        (2 * receptor_current_rep) + 
-        (1 * actions[arg_action_taken]));
+    payoffs.push_back(payoff);
 
-    double max_value = *std::max_element(q_table[next_state].begin(), q_table[next_state].end());
-    q_table[current_state][arg_action_taken] = (1 - learning_rate)*q_table[current_state][arg_action_taken] + learning_rate*(payoff + discount_factor*max_value);
+    if(finished_episode)
+    {
+        set_new_state((8 * receptor_previous_rep) + 
+            (4 * reputation.front()) + 
+            (2 * receptor_current_rep) + 
+            (1 * actions[arg_action_taken]));
+        
+        double total_payoff = std::accumulate(payoffs.begin(), payoffs.end(), 0.0);
+        double max_value = *std::max_element(q_table[next_state].begin(), q_table[next_state].end());
+        //std::cout << "It was " << q_table[current_state][arg_action_taken] << std::endl;
+        q_table[current_state][arg_action_taken] = (1 - learning_rate)*q_table[current_state][arg_action_taken] + learning_rate*(total_payoff + discount_factor*max_value);
+        //std::cout << "Now it is " << q_table[current_state][arg_action_taken] << std::endl;
+        payoffs.clear(); 
+    }
 }
 
 void QAgent::add_reputation(bool rep)
@@ -98,6 +111,20 @@ void QAgent::change_state()
 {
     previous_state = current_state;
     current_state = next_state;
+    //print_q_table();
+}
+
+void QAgent::print_q_table()
+{
+    std::cout << "Q TABLE" << std::endl;
+    for(int i = 0; i < num_states; i++)
+    {
+        for(int j = 0; j < num_actions; j++)
+        {
+            std::cout << q_table[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 void QAgent::reset()
@@ -116,4 +143,5 @@ void QAgent::reset()
 
     current_state = initial_state;
     current_iteration = 0;
+    exploitation_acts = 0;
 }

@@ -25,7 +25,10 @@ void Simulation::judge(Agent& x, Agent& y, bool x_action, bool y_action)
     bernoulli_distribution dist(alpha[0]);
     bitset<2> can_assign;
     for(short i=0; i<can_assign.size(); i++)
-        can_assign[i] = dist(mt);
+    {
+        //can_assign[i] = dist(mt);
+        can_assign[i] = true;
+    }
 
     if (can_assign[0])
         x.add_reputation(norm[reputation_combination_to_index(x, y, x_action)]);
@@ -42,20 +45,22 @@ void Simulation::donation_operation(Agent& x, Agent& y)
 {
     bool x_act = x.act(y);
     bool y_act = y.act(x);
-    total_acts += 2;
+    total_acts += 2*keep_track;
 
     if (x_act)
     {
-        coops++;
+        coops += 1*keep_track;
         x.add_payoff(-payoff_c);
         y.add_payoff(payoff_b);
     }
 
     if (y_act)
     {
-        coops++;
+        coops += 1*keep_track;
         y.add_payoff(-payoff_c);
         x.add_payoff(payoff_b);
+        x.finished_episode = true;
+        y.finished_episode = true;
     }
 
     judge(x, y, x_act, y_act);
@@ -80,16 +85,21 @@ void Simulation::run_generations(int runs)
         {
             cout << endl << "Run " << j+1 << " started." << endl;
 
-            while(q.temperature >= 0.01)
+            while(q.exploitation_acts < 1000)
             {
                 donation_operation(q, s);
                 q.change_state();
             }
 
-            eta = double(coops) / double(total_acts);
-            eta_each_run.push_back(eta);
-            coops = 0;
-            total_acts = 0;
+            keep_track = q.exploitation_acts > 0;
+
+            if (keep_track)
+            {
+                eta = double(coops) / double(total_acts);
+                eta_each_run.push_back(eta);
+                coops = 0;
+                total_acts = 0;
+            }
 
             q.reset();
             s.reset();
