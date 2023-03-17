@@ -25,7 +25,10 @@ void Simulation::judge(Agent& x, Agent& y, bool x_action, bool y_action)
     bernoulli_distribution dist(alpha[0]);
     bitset<2> can_assign;
     for(short i=0; i<can_assign.size(); i++)
-        can_assign[i] = dist(mt);
+    {
+        //can_assign[i] = dist(mt);
+        can_assign[i] = true;
+    }
 
     if (can_assign[0])
         x.add_reputation(norm[reputation_combination_to_index(x, y, x_action)]);
@@ -56,6 +59,8 @@ void Simulation::donation_operation(Agent& x, Agent& y)
         coops += 1*keep_track;
         y.add_payoff(-payoff_c);
         x.add_payoff(payoff_b);
+        x.finished_episode = true;
+        y.finished_episode = true;
     }
 
     judge(x, y, x_act, y_act);

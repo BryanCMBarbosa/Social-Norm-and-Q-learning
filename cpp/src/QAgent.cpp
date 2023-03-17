@@ -17,10 +17,11 @@ QAgent::QAgent(long id, int num_states, std::vector<bool> actions, double learni
     this->temperature = temperature;
     this->exploration_annealing_factor = exploration_annealing_factor;
     this->current_iteration = 0;
-    this->acts_on_episode = 0;
     this->exploitation_acts = 0;
     generate_reputation();
 }
+
+
 
 void QAgent::config_q_table()
 {
@@ -39,8 +40,6 @@ bool QAgent::act(Agent& receptor)
 
     double max;
     int max_id;
-
-    acts_on_episode++;
 
     if (temperature < 0.01)
     {
@@ -86,7 +85,7 @@ void QAgent::add_payoff(double payoff)
 {
     payoffs.push_back(payoff);
 
-    if(acts_on_episode == 2)
+    if(finished_episode)
     {
         set_new_state((8 * receptor_previous_rep) + 
             (4 * reputation.front()) + 
@@ -95,9 +94,10 @@ void QAgent::add_payoff(double payoff)
         
         double total_payoff = std::accumulate(payoffs.begin(), payoffs.end(), 0.0);
         double max_value = *std::max_element(q_table[next_state].begin(), q_table[next_state].end());
+        //std::cout << "It was " << q_table[current_state][arg_action_taken] << std::endl;
         q_table[current_state][arg_action_taken] = (1 - learning_rate)*q_table[current_state][arg_action_taken] + learning_rate*(total_payoff + discount_factor*max_value);
-        payoffs.clear();
-        acts_on_episode = 0;
+        //std::cout << "Now it is " << q_table[current_state][arg_action_taken] << std::endl;
+        payoffs.clear(); 
     }
 }
 
@@ -111,6 +111,20 @@ void QAgent::change_state()
 {
     previous_state = current_state;
     current_state = next_state;
+    //print_q_table();
+}
+
+void QAgent::print_q_table()
+{
+    std::cout << "Q TABLE" << std::endl;
+    for(int i = 0; i < num_states; i++)
+    {
+        for(int j = 0; j < num_actions; j++)
+        {
+            std::cout << q_table[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 void QAgent::reset()

@@ -34,6 +34,7 @@ class QAgent: public Agent
         
     private:
         void config_q_table();
+        void print_q_table();
         
         std::mt19937 mt;
         double initial_temperature;
@@ -44,7 +45,6 @@ class QAgent: public Agent
         int next_state;
         int arg_action_taken;
         std::vector<double> payoffs;
-        short acts_on_episode;
 };
 
 #endif

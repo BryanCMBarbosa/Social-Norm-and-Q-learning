@@ -20,6 +20,8 @@ class Agent
         long id;
         double payoffs_sum;
         double fitness;
+        bool finished_episode;
+
         std::queue<bool> reputation;
 };
 
